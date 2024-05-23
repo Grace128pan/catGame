@@ -95,8 +95,8 @@ def show_instructions():
         "2. Catch the rat within 10 turns.",
         "3. The rat moves randomly after each turn.",
         "4. Press 'Try Again' to restart the game.",
-        "5. Press 'pause' to pause the game."
-        "6. Press 'continue' to continue the paused game."
+        "5. Press 'Pause' to pause the game.",
+        "6. Press 'Continue' to continue the paused game.",
         "7. Press 'Exit' to stop the game."
     ]
     y_offset = 20
@@ -174,7 +174,7 @@ def draw_end_buttons():
         end_text = font.render("Game Over!", True, BLACK)
         screen.blit(end_text, (WINDOW_SIZE // 2 - 80, WINDOW_SIZE // 2 - 40))
         try_again_button = draw_button("Try Again", (100, WINDOW_SIZE // 2 + 20), (150, 40))
-        exit_button = draw_button("Exit", (300, WINDOW_SIZE // 2 + 20        ), (100, 40))
+        exit_button = draw_button("Exit", (300, WINDOW_SIZE // 2 + 20), (100, 40))
         pygame.display.flip()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -186,8 +186,22 @@ def draw_end_buttons():
                 elif exit_button.collidepoint(mouse_pos):
                     return False
 
+def handle_mouse_buttons(event):
+    global paused, running
+    mouse_pos = event.pos
+    if instruction_button.collidepoint(mouse_pos):
+        show_instructions()
+    elif pause_button.collidepoint(mouse_pos):
+        paused = True
+        background_music.stop()
+    elif continue_button.collidepoint(mouse_pos):
+        paused = False
+        play_background_music()
+    elif exit_button.collidepoint(mouse_pos):
+        running = False
+
 def main_game():
-    global cat_position, rat_position, paused
+    global cat_position, rat_position, paused, running
     running = True
     turn = 0
     cat_position = [random.randint(0, GRID_SIZE - 1), random.randint(0, GRID_SIZE - 1)]
@@ -202,6 +216,7 @@ def main_game():
             draw_positions()
 
             # Draw buttons
+            global instruction_button, pause_button, continue_button, exit_button
             instruction_button = draw_button("Instructions", (20, WINDOW_SIZE + 10), (150, 30))
             button_spacing = 10
             pause_button = draw_button("Pause", (WINDOW_SIZE - 270, WINDOW_SIZE + 10), (80, 30))
@@ -212,6 +227,7 @@ def main_game():
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                   
                     running = False
                 elif event.type == pygame.KEYDOWN and not paused:
                     if event.key == pygame.K_UP:
@@ -232,8 +248,14 @@ def main_game():
                     # Move the rat randomly
                     possible_moves = ['up', 'down', 'left', 'right']
                     if abs(cat_position[0] - rat_position[0]) + abs(cat_position[1] - rat_position[1]) > 1:
-                        possible_moves.remove('up' if cat_position[0] - rat_position[0] == 1 else 'down')
-                        possible_moves.remove('left' if cat_position[1] - rat_position[1] == 1 else 'right')
+                        if cat_position[0] > rat_position[0]:
+                            possible_moves.remove('up')
+                        if cat_position[0] < rat_position[0]:
+                            possible_moves.remove('down')
+                        if cat_position[1] > rat_position[1]:
+                            possible_moves.remove('left')
+                        if cat_position[1] < rat_position[1]:
+                            possible_moves.remove('right')
                     rat_move = random.choice(possible_moves)
                     move_position(rat_position, rat_move)
 
@@ -245,19 +267,9 @@ def main_game():
                             return main_game()
 
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    mouse_pos = event.pos
-                    if instruction_button.collidepoint(mouse_pos):
-                        show_instructions()
-                    elif pause_button.collidepoint(mouse_pos):
-                        paused = True
-                        background_music.stop()
-                    elif continue_button.collidepoint(mouse_pos):
-                        paused = False
-                        play_background_music()
-                    elif exit_button.collidepoint(mouse_pos):
-                        running = False
+                    handle_mouse_buttons(event)
 
     pygame.quit()
 
+# Start the main game
 main_game()
-
