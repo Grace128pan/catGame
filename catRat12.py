@@ -174,17 +174,18 @@ def draw_end_buttons():
         end_text = font.render("Game Over!", True, BLACK)
         screen.blit(end_text, (WINDOW_SIZE // 2 - 80, WINDOW_SIZE // 2 - 40))
         try_again_button = draw_button("Try Again", (100, WINDOW_SIZE // 2 + 20), (150, 40))
-        exit_button = draw_button("Exit", (300, WINDOW_SIZE // 2 + 20),(100, 40))    
+        exit_button = draw_button("Exit", (300, WINDOW_SIZE // 2 + 20        ), (100, 40))
         pygame.display.flip()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = event.pos
-            if try_again_button.collidepoint(mouse_pos):
-                return True
-            elif exit_button.collidepoint(mouse_pos):
-                return False
+                if try_again_button.collidepoint(mouse_pos):
+                    return True
+                elif exit_button.collidepoint(mouse_pos):
+                    return False
+
 def main_game():
     global cat_position, rat_position, paused
     running = True
@@ -259,3 +260,4 @@ def main_game():
     pygame.quit()
 
 main_game()
+
