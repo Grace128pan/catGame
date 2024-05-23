@@ -26,8 +26,19 @@ button_font = pygame.font.Font(None, 24)
 instructions_font = pygame.font.SysFont("timesnewroman", 24)
 
 # Load images
-cat_image = pygame.image.load('image/jumpingCat.jpg')
-cat_image = pygame.transform.scale(cat_image, (CELL_SIZE, CELL_SIZE))
+cat_images = {
+    0: pygame.image.load('image/jumpingCat.jpg'),
+    1: pygame.image.load('image/dollar.jpg'),
+    2: pygame.image.load('image/flower.png'),
+    3: pygame.image.load('image/lucky.jpg'),
+    4: pygame.image.load('image/niu.jpg'),
+    5: pygame.image.load('image/sunny.jpeg')
+}
+
+for key in cat_images:
+    cat_images[key] = pygame.transform.scale(cat_images[key], (CELL_SIZE, CELL_SIZE))
+
+current_cat_image = cat_images[0]
 rat_image = pygame.image.load('image/rat.jpg')
 rat_image = pygame.transform.scale(rat_image, (CELL_SIZE, CELL_SIZE))
 
@@ -52,7 +63,7 @@ def draw_grid():
 def draw_positions():
     cat_rect = pygame.Rect(cat_position[1] * CELL_SIZE, cat_position[0] * CELL_SIZE, CELL_SIZE, CELL_SIZE)
     rat_rect = pygame.Rect(rat_position[1] * CELL_SIZE, rat_position[0] * CELL_SIZE, CELL_SIZE, CELL_SIZE)
-    screen.blit(cat_image, cat_rect)
+    screen.blit(current_cat_image, cat_rect)
     screen.blit(rat_image, rat_rect)
 
 def move_position(position, move):
@@ -95,14 +106,53 @@ def show_instructions():
 def play_background_music():
     background_music.play(-1)
 
-def end_game(message):
+def get_user_cat_choice():
+    screen.fill(WHITE)
+    choice_text = font.render("Choose a cat image:", True, BLACK)
+    screen.blit(choice_text, (20, 20))
+    options = [
+        "0: Default",
+        "1: Dollar",
+        "2: Flower",
+        "3: Lucky",
+        "4: Niu",
+        "5: Sunny"
+    ]
+    y_offset = 70
+    for option in options:
+        option_text = font.render(option, True, BLACK)
+        screen.blit(option_text, (20, y_offset))
+        y_offset += 40
+    pygame.display.flip()
+
+    user_choice = None
+    while user_choice is None:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return None
+            elif event.type == pygame.KEYDOWN:
+                if event.key in (pygame.K_0, pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5):
+                    user_choice = int(event.unicode)
+                    return user_choice
+
+def end_game(message, win=False):
     background_music.stop()
     screen.fill(WHITE)
     end_text = font.render(message, True, BLACK)
     screen.blit(end_text, (20, WINDOW_SIZE // 2))
     pygame.display.flip()
     pygame.time.wait(2000)
-    return main_game() if draw_end_buttons() else pygame.quit()
+    if win:
+        choice = get_user_cat_choice()
+        if choice is not None:
+            global current_cat_image
+            current_cat_image = cat_images[choice]
+            return main_game()
+    else:
+        if draw_end_buttons():
+            return main_game()
+        else:
+            pygame.quit()
 
 def draw_end_buttons():
     running = True
@@ -164,7 +214,7 @@ def main_game():
                 # Check if the cat caught the rat
                 if cat_position == rat_position:
                     win_sound.play()
-                    return end_game("Cat caught the rat! You win!")
+                    return end_game("Cat caught the rat! You win!", win=True)
 
                 # Move the rat randomly
                 rat_move = random.choice(['up', 'down', 'left', 'right'])
@@ -174,7 +224,7 @@ def main_game():
 
                 if turn >= NUM_TURNS:
                     lose_sound.play()
-                    return end_game("Out of turns! The rat got away!")
+                    return end_game("Out of turns! The rat got away!", win=False)
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = event.pos
