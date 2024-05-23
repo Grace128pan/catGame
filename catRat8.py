@@ -41,7 +41,7 @@ for key in cat_images:
 current_cat_image = cat_images[0]
 rat_image = pygame.image.load('image/rat.jpg')
 rat_image = pygame.transform.scale(rat_image, (CELL_SIZE, CELL_SIZE))
-flower_image = pygame.image.load('image/flower.jpg')
+flower_image = pygame.image.load('image/award.jpg')
 flower_image = pygame.transform.scale(flower_image, (CELL_SIZE, CELL_SIZE))
 
 # Load sounds
