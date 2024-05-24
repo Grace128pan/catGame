@@ -53,6 +53,10 @@ lose_sound = pygame.mixer.Sound("audio/lose.mp3")
 cat_position = [random.randint(0, GRID_SIZE - 1), random.randint(0, GRID_SIZE - 1)]
 rat_position = [random.randint(0, GRID_SIZE - 1), random.randint(0, GRID_SIZE - 1)]
 
+# Check if cat_position is the same as rat_position, and regenerate rat_position if needed
+while cat_position == rat_position:
+    rat_position = [random.randint(0, GRID_SIZE - 1), random.randint(0, GRID_SIZE - 1)]
+
 # Initialize game state
 paused = False
 
@@ -160,7 +164,7 @@ def end_game(message, win=False):
             return False
 
 def throw_flowers():
-    for _ in range(5):
+    for _ in range(20):
         x = random.randint(0, WINDOW_SIZE - CELL_SIZE)
         y = random.randint(0, WINDOW_SIZE - CELL_SIZE)
         screen.blit(award_image, (x, y))
